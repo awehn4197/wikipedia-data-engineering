@@ -1,9 +1,8 @@
 import re
 import csv
-import pprint
 import pathlib
 import logging
-import json
+# import json
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -28,7 +27,7 @@ class Scraper:
     """
 
     def __init__(self) -> None:
-        # self.base_url = "https://www.fda.gov/food/food-labeling-nutrition/raw-fruits-poster-text-version-accessible-version"
+        print(script_path)
         return
         
     def scrape(self, wikipedia_page_key: str) -> list:
@@ -42,7 +41,7 @@ class Scraper:
             Take the first embedded wikipedia link in the page's content and do the same thing
             Need to handle graph cycles
         """
-        wikipedia_data_headers = ["article_key", "article_name", "number_of_links_to_article", "article_url", "summary_html"]
+        wikipedia_data_headers = ["article_key", "article_name", "number_of_links_to_article", "article_url", "first_link_in_summary", "summary_html"]
         wikipedia_data = []
         # initialize data headers
 
@@ -73,17 +72,6 @@ class Scraper:
             wikipedia_page_title = get_element_for_path(wiki_page_soup, PAGE_ELEMENT_PATHS["WIKIPEDIA_ARTICLE_PAGE"]["PAGE_TITLE"]).text
             wikipedia_summary_html = str(get_element_for_path(wiki_page_soup, PAGE_ELEMENT_PATHS["WIKIPEDIA_ARTICLE_PAGE"]["SUMMARY_HTML"]))
 
-
-            wikipedia_data_row = (wikipedia_page_key, wikipedia_page_title, number_linking_pages, wikipedia_page_url, wikipedia_summary_html)
-
-            row_data = {}
-            for i, dt in enumerate(wikipedia_data_row):
-                row_data[wikipedia_data_headers[i]] = dt
-            wikipedia_data.append(row_data)
-
-            print(json.dumps(wikipedia_data, indent=4))
-
-
             summary_text_links = get_element_for_path(wiki_page_soup, PAGE_ELEMENT_PATHS["WIKIPEDIA_ARTICLE_PAGE"]["SUMMARY_TEXT_LINKS"])
 
             linked_page_key = None
@@ -92,11 +80,19 @@ class Scraper:
                     linked_page_key = re.search(r"\/wiki\/(.*)", link.attrs['href']).group(1)
                     break
             wikipedia_page_key = linked_page_key
+
+            wikipedia_data_row = (wikipedia_page_key, wikipedia_page_title, number_linking_pages, wikipedia_page_url, linked_page_key, wikipedia_summary_html)
+
+            row_data = {}
+            for i, dt in enumerate(wikipedia_data_row):
+                row_data[wikipedia_data_headers[i]] = dt
+            wikipedia_data.append(row_data)
+
+            print(row_data)
+            
         
         return wikipedia_data
-
         
-
     def convert_to_csv(self, scraped_data: list, wikipedia_page_key: str, data_level: str) -> None:
         """
         Converts a list of dictionaries to a csv file
@@ -108,7 +104,7 @@ class Scraper:
         """
 
 
-        with open(f"../csv/{wikipedia_page_key}-{data_level}.csv", "w") as csvfile:
+        with open(f"{script_path}/../csv/{wikipedia_page_key}-{data_level}.csv", "w") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=scraped_data[0].keys())
             writer.writeheader()
             writer.writerows(scraped_data)

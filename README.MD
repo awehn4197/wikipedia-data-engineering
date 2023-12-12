@@ -6,6 +6,7 @@ https://lucid.app/lucidchart/f77f501d-1a5d-4bf5-b280-691a9592ff1c/edit?beaconFlo
     then start processing the rss feeds to get the summaries of new articles too
     analysts can go in and flag pages that they want specific updates from and what kind of information to collect
 
+TODO: ESCAPE HTML STRINGS BECAUSE THEY CONTAIN BOTH SINGLE AND DOUBLE QUOTES
             
             
 is there a way to give a quanitifiable metric to how "abstract" the meaning of a single word is?
@@ -25,3 +26,5 @@ other scraping ideas (?):
        look for next page button to see if there are more dogs, keep loading new pages til this button is no longer seen
        dont really need to web scrape here tho - can just call the api directly
  - look up all car washes within radius of your zip code and check for deals...?
+
+        # self.base_url = "https://www.fda.gov/food/food-labeling-nutrition/raw-fruits-poster-text-version-accessible-version"

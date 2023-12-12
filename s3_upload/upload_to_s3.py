@@ -1,17 +1,29 @@
+import os
 import sys
 import boto3
 import pathlib
 from dotenv import dotenv_values
 from botocore.exceptions import ClientError, NoCredentialsError
 
-# Load config
+# current_directory = os.getcwd()
 script_path = pathlib.Path(__file__).parent.resolve()
-config = dotenv_values(f"{script_path}/configuration.env")
+
+
+
+def get_csv_files():
+    # current_directory = os.getcwd()
+    print("script_path: ", script_path)
+    # return []
+    csv_files = [f for f in os.listdir(f"{script_path}/../csv") if f.endswith('.csv')]
+    print("csv_files: ", csv_files)
+    return csv_files
+
+# Load config
+config = dotenv_values(f"{script_path}/../configuration.env")
 
 # Get CLI arg for data phase upload, ie, bronze, silver, gold
 data_level = sys.argv[1]
-files = [f"headphones-{data_level}.csv", f"iems-{data_level}.csv"]
-
+files = get_csv_files()
 # Set config variables
 AWS_BUCKET = config["bucket_name"]
 
@@ -36,7 +48,7 @@ def upload_csv_s3():
     """
     s3_conn = connect_s3()
     for file in files:
-        s3_conn.meta.client.upload_file(Filename=f"/tmp/{file}", Bucket=AWS_BUCKET, Key=file)
+        s3_conn.meta.client.upload_file(Filename=f"{script_path}/../csv/{file}", Bucket=AWS_BUCKET, Key=file)
 
 
 if __name__ == "__main__":
